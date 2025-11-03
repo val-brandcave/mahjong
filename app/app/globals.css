@@ -1,0 +1,224 @@
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Warm, inviting color palette for "Pickleball Mom" demographic */
+    /* Primary: Warm Mauve/Purple - feminine, modern, elevated */
+    --primary: 280 65% 60%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary: Soft Teal - fresh, energetic, social */
+    --secondary: 180 45% 55%;
+    --secondary-foreground: 0 0% 100%;
+    
+    /* Accent: Coral/Rose - warm, friendly, inviting */
+    --accent: 350 75% 65%;
+    --accent-foreground: 0 0% 100%;
+    
+    /* Success: Soft Green - achievement, progress */
+    --success: 140 50% 55%;
+    --success-foreground: 0 0% 100%;
+    
+    /* Warm Background - light, not stark white */
+    --background: 30 20% 98%;
+    --foreground: 280 10% 15%;
+    
+    /* Card backgrounds - slightly elevated */
+    --card: 0 0% 100%;
+    --card-foreground: 280 10% 15%;
+    
+    /* Muted elements */
+    --muted: 280 10% 92%;
+    --muted-foreground: 280 5% 45%;
+    
+    /* Borders - subtle */
+    --border: 280 15% 88%;
+    --input: 280 15% 88%;
+    --ring: 280 65% 60%;
+    
+    /* Radius - friendly, approachable */
+    --radius: 1rem;
+    
+    /* Destructive - soft red */
+    --destructive: 0 65% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 280 10% 15%;
+    
+    /* App-specific feature colors */
+    --color-home: 180 55% 50%;
+    --color-lessons: 280 60% 60%;
+    --color-challenges: 350 78% 65%;
+    --color-achievements: 45 95% 58%;
+    --color-level: 260 75% 65%;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+  
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  
+  /* Mobile-optimized typography for 40-70 age group */
+  h1 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 2.25rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 2rem;
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.75rem;
+  }
+  
+  /* Larger base font for readability */
+  p {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+  
+  /* Touch-friendly buttons (44px+ minimum) */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Smooth mobile animations */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Mobile viewport configuration */
+@layer utilities {
+  .mobile-container {
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    max-width: 428px;
+    min-height: 100vh;
+    background-color: hsl(var(--background));
+  }
+  
+  .mobile-screen {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 1.5rem;
+  }
+  
+  .mobile-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background-color: hsl(var(--card));
+    border-bottom: 1px solid hsl(var(--border));
+  }
+  
+  .mobile-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-top: 4rem;
+  }
+  
+  .mobile-footer {
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+  }
+  
+  /* Touch-friendly tap areas */
+  .tap-target {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Smooth page transitions */
+  .page-transition {
+    transition: all 0.3s ease-in-out;
+  }
+
+  /* Onboarding-specific styling */
+  .onboarding .mobile-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background-color: hsl(var(--background));
+    border-bottom: none;
+  }
+  
+  .onboarding .mobile-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-top: 1rem;
+  }
+  
+  /* Add top padding to mobile-screen to accommodate fixed header height (4.5rem total: 1rem padding + 1.5rem padding = 3rem, + 1.5rem extra) */
+  .onboarding.mobile-screen {
+    padding-top: 4.5rem;
+  }
+}
+
+/* Custom animations for celebration/feedback */
+@keyframes confetti {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-success {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-confetti {
+  animation: confetti 2s ease-out;
+}
+
+.animate-pulse-success {
+  animation: pulse-success 0.6s ease-in-out 3;
+}
+
