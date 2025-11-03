@@ -128,7 +128,7 @@ export const useUserProfileStore = create<UserProfileState>()(
       setLanguage: (language) => set({ language }),
       setLevel: (level) => set({ level }),
       setStreak: (streak) => set({ streak }),
-      resetProfile: () => set(initialState),
+      resetProfile: () => set(initialProfileState),
     }),
     {
       name: "mahjong-user-profile",
