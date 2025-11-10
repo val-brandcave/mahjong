@@ -3,8 +3,7 @@
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { MobileContainer } from "../mobile/MobileContainer";
-import { ArrowLeft, Home, BookOpen, Zap, Menu } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 interface LessonContainerProps {
   children: ReactNode;
@@ -21,8 +20,6 @@ export function LessonContainer({
   totalScreens,
   onBack,
 }: LessonContainerProps) {
-  const router = useRouter();
-  
   return (
     <MobileContainer>
       {/* Custom Header with Back Button */}
@@ -60,46 +57,8 @@ export function LessonContainer({
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto pb-20">
+      <div className="flex-1 overflow-y-auto">
         {children}
-      </div>
-
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-3 max-w-md mx-auto">
-        <div className="flex items-center justify-around">
-          <button
-            onClick={() => router.push("/home")}
-            className="flex flex-col items-center gap-1 p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Home className="h-6 w-6" />
-            <span className="text-xs font-medium">Home</span>
-          </button>
-
-          <button
-            onClick={() => router.push("/lessons")}
-            className="flex flex-col items-center gap-1 p-2 rounded-lg transition-colors"
-            style={{ color: "rgb(175, 87, 219)" }}
-          >
-            <BookOpen className="h-6 w-6" />
-            <span className="text-xs font-medium">Lessons</span>
-          </button>
-
-          <button
-            onClick={() => router.push("/challenges")}
-            className="flex flex-col items-center gap-1 p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Zap className="h-6 w-6" />
-            <span className="text-xs font-medium">Challenges</span>
-          </button>
-
-          <button
-            onClick={() => router.push("/more-options")}
-            className="flex flex-col items-center gap-1 p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Menu className="h-6 w-6" />
-            <span className="text-xs font-medium">More</span>
-          </button>
-        </div>
       </div>
     </MobileContainer>
   );
