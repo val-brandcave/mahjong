@@ -320,3 +320,339 @@ export const LEADERBOARD_USERS: LeaderboardUser[] = [
   },
 ];
 
+// ======================
+// Lesson Progress Store
+// ======================
+
+export interface QuizAnswer {
+  questionId: string;
+  selectedAnswer: string;
+  correct: boolean;
+}
+
+export interface LessonProgressData {
+  lessonId: number;
+  currentScreen: number;
+  totalScreens: number;
+  screensCompleted: number[];
+  quizAnswers: QuizAnswer[];
+  interactionsCompleted: string[];
+  timeSpentSeconds: number;
+  completed: boolean;
+  starsEarned: number; // 0-3
+  completedAt?: string;
+  startedAt: string;
+}
+
+export interface LessonProgressState {
+  currentLessonId: number | null;
+  lessonsProgress: Record<number, LessonProgressData>;
+  
+  // Actions
+  startLesson: (lessonId: number, totalScreens: number) => void;
+  goToScreen: (screenNumber: number) => void;
+  markScreenComplete: (screenNumber: number) => void;
+  submitQuizAnswer: (questionId: string, answer: string, correct: boolean) => void;
+  markInteractionComplete: (interactionId: string) => void;
+  completeLesson: (starsEarned: number) => void;
+  resetLesson: (lessonId: number) => void;
+  getLessonProgress: (lessonId: number) => LessonProgressData | null;
+}
+
+export const useLessonProgressStore = create<LessonProgressState>()(
+  persist(
+    (set, get) => ({
+      currentLessonId: null,
+      lessonsProgress: {},
+      
+      startLesson: (lessonId, totalScreens) => {
+        const now = new Date().toISOString();
+        set((state) => ({
+          currentLessonId: lessonId,
+          lessonsProgress: {
+            ...state.lessonsProgress,
+            [lessonId]: {
+              lessonId,
+              currentScreen: 1,
+              totalScreens,
+              screensCompleted: [],
+              quizAnswers: [],
+              interactionsCompleted: [],
+              timeSpentSeconds: 0,
+              completed: false,
+              starsEarned: 0,
+              startedAt: now,
+            },
+          },
+        }));
+      },
+      
+      goToScreen: (screenNumber) => {
+        const { currentLessonId } = get();
+        if (!currentLessonId) return;
+        
+        set((state) => ({
+          lessonsProgress: {
+            ...state.lessonsProgress,
+            [currentLessonId]: {
+              ...state.lessonsProgress[currentLessonId],
+              currentScreen: screenNumber,
+            },
+          },
+        }));
+      },
+      
+      markScreenComplete: (screenNumber) => {
+        const { currentLessonId } = get();
+        if (!currentLessonId) return;
+        
+        set((state) => {
+          const lesson = state.lessonsProgress[currentLessonId];
+          if (!lesson) return state;
+          
+          const screensCompleted = lesson.screensCompleted.includes(screenNumber)
+            ? lesson.screensCompleted
+            : [...lesson.screensCompleted, screenNumber];
+          
+          return {
+            lessonsProgress: {
+              ...state.lessonsProgress,
+              [currentLessonId]: {
+                ...lesson,
+                screensCompleted,
+              },
+            },
+          };
+        });
+      },
+      
+      submitQuizAnswer: (questionId, answer, correct) => {
+        const { currentLessonId } = get();
+        if (!currentLessonId) return;
+        
+        set((state) => {
+          const lesson = state.lessonsProgress[currentLessonId];
+          if (!lesson) return state;
+          
+          return {
+            lessonsProgress: {
+              ...state.lessonsProgress,
+              [currentLessonId]: {
+                ...lesson,
+                quizAnswers: [
+                  ...lesson.quizAnswers,
+                  { questionId, selectedAnswer: answer, correct },
+                ],
+              },
+            },
+          };
+        });
+      },
+      
+      markInteractionComplete: (interactionId) => {
+        const { currentLessonId } = get();
+        if (!currentLessonId) return;
+        
+        set((state) => {
+          const lesson = state.lessonsProgress[currentLessonId];
+          if (!lesson) return state;
+          
+          const interactions = lesson.interactionsCompleted.includes(interactionId)
+            ? lesson.interactionsCompleted
+            : [...lesson.interactionsCompleted, interactionId];
+          
+          return {
+            lessonsProgress: {
+              ...state.lessonsProgress,
+              [currentLessonId]: {
+                ...lesson,
+                interactionsCompleted: interactions,
+              },
+            },
+          };
+        });
+      },
+      
+      completeLesson: (starsEarned) => {
+        const { currentLessonId } = get();
+        if (!currentLessonId) return;
+        
+        const now = new Date().toISOString();
+        set((state) => {
+          const lesson = state.lessonsProgress[currentLessonId];
+          if (!lesson) return state;
+          
+          return {
+            lessonsProgress: {
+              ...state.lessonsProgress,
+              [currentLessonId]: {
+                ...lesson,
+                completed: true,
+                starsEarned,
+                completedAt: now,
+              },
+            },
+          };
+        });
+        
+        // Update UserStats
+        const userStatsStore = useUserStatsStore.getState();
+        userStatsStore.completeLesson(starsEarned);
+      },
+      
+      resetLesson: (lessonId) => {
+        set((state) => {
+          const { [lessonId]: _, ...remaining } = state.lessonsProgress;
+          return {
+            currentLessonId: state.currentLessonId === lessonId ? null : state.currentLessonId,
+            lessonsProgress: remaining,
+          };
+        });
+      },
+      
+      getLessonProgress: (lessonId) => {
+        return get().lessonsProgress[lessonId] || null;
+      },
+    }),
+    {
+      name: "mahjong-lesson-progress",
+    }
+  )
+);
+
+// ======================
+// User Stats Store
+// ======================
+
+export interface UserStatsState {
+  totalXP: number;
+  totalStars: number;
+  lessonsCompleted: number;
+  challengesCompleted: number;
+  currentStreak: number;
+  longestStreak: number;
+  lastActivityDate: string | null;
+  
+  // Computed
+  level: number;
+  
+  // Actions
+  addXP: (amount: number) => void;
+  addStars: (amount: number) => void;
+  completeLesson: (starsEarned: number) => void;
+  completeChallenge: (starsEarned: number, xpEarned: number) => void;
+  updateStreak: () => void;
+  resetStats: () => void;
+}
+
+const calculateLevel = (xp: number): number => {
+  return Math.floor(Math.sqrt(xp / 100));
+};
+
+export const useUserStatsStore = create<UserStatsState>()(
+  persist(
+    (set, get) => ({
+      totalXP: 0,
+      totalStars: 0,
+      lessonsCompleted: 0,
+      challengesCompleted: 0,
+      currentStreak: 0,
+      longestStreak: 0,
+      lastActivityDate: null,
+      level: 1,
+      
+      addXP: (amount) => {
+        set((state) => {
+          const newXP = state.totalXP + amount;
+          return {
+            totalXP: newXP,
+            level: calculateLevel(newXP),
+          };
+        });
+      },
+      
+      addStars: (amount) => {
+        set((state) => ({
+          totalStars: state.totalStars + amount,
+        }));
+      },
+      
+      completeLesson: (starsEarned) => {
+        const baseXP = 100;
+        const starBonus = starsEarned === 3 ? 50 : starsEarned === 2 ? 25 : 0;
+        const totalXP = baseXP + starBonus;
+        
+        set((state) => {
+          const newXP = state.totalXP + totalXP;
+          return {
+            totalXP: newXP,
+            totalStars: state.totalStars + starsEarned,
+            lessonsCompleted: state.lessonsCompleted + 1,
+            level: calculateLevel(newXP),
+          };
+        });
+        
+        // Update streak
+        get().updateStreak();
+      },
+      
+      completeChallenge: (starsEarned, xpEarned) => {
+        set((state) => {
+          const newXP = state.totalXP + xpEarned;
+          return {
+            totalXP: newXP,
+            totalStars: state.totalStars + starsEarned,
+            challengesCompleted: state.challengesCompleted + 1,
+            level: calculateLevel(newXP),
+          };
+        });
+        
+        // Update streak
+        get().updateStreak();
+      },
+      
+      updateStreak: () => {
+        const today = new Date().toISOString().split('T')[0];
+        const { lastActivityDate, currentStreak, longestStreak } = get();
+        
+        if (lastActivityDate === today) {
+          // Already logged today
+          return;
+        }
+        
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+        
+        let newStreak = 1;
+        if (lastActivityDate === yesterdayStr) {
+          // Consecutive day
+          newStreak = currentStreak + 1;
+        }
+        
+        set({
+          currentStreak: newStreak,
+          longestStreak: Math.max(newStreak, longestStreak),
+          lastActivityDate: today,
+        });
+      },
+      
+      resetStats: () => {
+        set({
+          totalXP: 0,
+          totalStars: 0,
+          lessonsCompleted: 0,
+          challengesCompleted: 0,
+          currentStreak: 0,
+          longestStreak: 0,
+          lastActivityDate: null,
+          level: 1,
+        });
+      },
+    }),
+    {
+      name: "mahjong-user-stats",
+    }
+  )
+);
+

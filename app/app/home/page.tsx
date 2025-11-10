@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { MobileContainer } from "@/components/mobile/MobileContainer";
@@ -24,22 +24,43 @@ import {
   Globe,
   UserCircle2,
 } from "lucide-react";
+import { useLessonProgressStore, useUserStatsStore } from "@/lib/store/onboarding";
+
+// Lesson metadata for display
+const LESSONS = [
+  { id: 1, title: "Welcome to Mahjong", duration: "3-5 min", tileSymbol: "Chun" },
+  { id: 2, title: "Know Your Tiles", duration: "5-8 min", tileSymbol: "Sou1" },
+  { id: 3, title: "Building the Walls", duration: "5-7 min", tileSymbol: "Ton" },
+  { id: 4, title: "The Deal", duration: "5-7 min", tileSymbol: "Pin1" },
+];
 
 export default function HomePage() {
   const router = useRouter();
   const [showPremiumBanner, setShowPremiumBanner] = useState(true);
   const [activeTab, setActiveTab] = useState("home");
+  
+  const { lessonsProgress } = useLessonProgressStore();
+  const { level, totalXP, currentStreak, lessonsCompleted } = useUserStatsStore();
 
-  // Mock user data
-  const userLevel = 8;
-  const userXP = 4250;
-  const maxXP = 5000;
-  const streak = 12;
-  const nextLesson = {
-    title: "Charleston Part 1 - The Right Pass",
-    tileSymbol: "Nan",
-    duration: "6-8 min",
+  // Calculate next lesson to take
+  const getNextLesson = () => {
+    for (const lesson of LESSONS) {
+      const progress = lessonsProgress[lesson.id];
+      if (!progress || !progress.completed) {
+        return lesson;
+      }
+    }
+    return LESSONS[0]; // Default to first lesson
   };
+
+  const nextLesson = getNextLesson();
+  
+  // Calculate XP progress to next level
+  const currentLevelXP = level * level * 100;
+  const nextLevelXP = (level + 1) * (level + 1) * 100;
+  const xpInCurrentLevel = totalXP - currentLevelXP;
+  const xpNeededForNextLevel = nextLevelXP - currentLevelXP;
+
   const dailyChallenge = {
     title: "Which Hand Is This?",
     tileSymbol: "Chun",
@@ -110,18 +131,18 @@ export default function HomePage() {
           >
             <GraduationCap className="w-6 h-6 mb-2" style={{ color: "rgb(140, 100, 230)" }} />
             <p className="text-xs text-muted-foreground mb-1">Your Level</p>
-            <h3 className="text-2xl font-bold mb-2">{userLevel}</h3>
+            <h3 className="text-2xl font-bold mb-2">{level}</h3>
             <div className="w-full bg-muted rounded-full h-2">
               <div
                 className="h-2 rounded-full transition-all"
                 style={{ 
-                  width: `${(userXP / maxXP) * 100}%`,
+                  width: `${(xpInCurrentLevel / xpNeededForNextLevel) * 100}%`,
                   background: "linear-gradient(to right, rgb(140, 100, 230), rgb(175, 87, 219))"
                 }}
               ></div>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {userXP} / {maxXP} XP
+              {xpInCurrentLevel} / {xpNeededForNextLevel} XP
             </p>
           </motion.div>
 
@@ -134,7 +155,7 @@ export default function HomePage() {
           >
             <Flame className="w-6 h-6 mb-2" style={{ color: "rgb(255, 107, 53)" }} />
             <p className="text-xs text-muted-foreground mb-1">Day Streak</p>
-            <h3 className="text-2xl font-bold mb-2">{streak} Days</h3>
+            <h3 className="text-2xl font-bold mb-2">{currentStreak} Days</h3>
             <div className="flex gap-1">
               {[...Array(7)].map((_, i) => (
                 <div
@@ -156,7 +177,7 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          onClick={() => router.push("/lessons")}
+          onClick={() => router.push(`/lesson/${nextLesson.id}`)}
           className="w-full bg-card border border-border rounded-xl p-4 text-left hover:bg-accent/5 transition-colors"
         >
           <div className="flex items-center gap-3">
@@ -226,7 +247,7 @@ export default function HomePage() {
               <BookOpen className="h-6 w-6 flex-shrink-0" style={{ color: "rgb(175, 87, 219)" }} />
             </div>
             <p className="text-xs text-muted-foreground">Lessons</p>
-            <p className="text-lg font-bold">5/13</p>
+            <p className="text-lg font-bold">{lessonsCompleted}/13</p>
           </motion.div>
 
           <motion.div
