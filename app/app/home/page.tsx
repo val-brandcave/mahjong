@@ -23,6 +23,7 @@ import {
   GraduationCap,
   Globe,
   UserCircle2,
+  Boxes,
 } from "lucide-react";
 import { useLessonProgressStore, useUserStatsStore } from "@/lib/store/onboarding";
 
@@ -232,6 +233,33 @@ export default function HomePage() {
               </div>
             </div>
             <ArrowRight className="h-5 w-5" style={{ color: "rgb(233, 99, 121)" }} />
+          </div>
+        </motion.button>
+
+        {/* 3D Gameplay Demo */}
+        <motion.button
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          onClick={() => router.push("/gameplay-3d")}
+          className="w-full rounded-xl p-4 text-left border transition-colors"
+          style={{
+            background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1))",
+            borderColor: "rgba(99, 102, 241, 0.3)"
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{
+              background: "linear-gradient(135deg, rgb(59, 130, 246), rgb(147, 51, 234))"
+            }}>
+              <Boxes className="h-6 w-6 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-muted-foreground mb-1">New! Preview</p>
+              <h3 className="font-semibold text-foreground text-sm leading-tight mb-1">3D Gameplay Demo</h3>
+              <span className="text-xs text-muted-foreground">Interactive 3D table experience</span>
+            </div>
+            <ArrowRight className="h-5 w-5" style={{ color: "rgb(99, 102, 241)" }} />
           </div>
         </motion.button>
 
