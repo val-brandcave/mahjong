@@ -307,7 +307,44 @@ function FullGameplayHybridInner({
         console.log("🏁 Final round! Player will draw one more tile then win");
         onPhaseChange?.("finalRound", { round: newRoundCount });
       }
+    } else {
+      // Bot's turn - auto-play after a delay
+      console.log("🤖 Bot turn:", nextPlayer);
+      setTimeout(() => {
+        playBotTurn(nextPlayer);
+      }, 1000);
     }
+  };
+
+  const playBotTurn = (bot: string) => {
+    console.log("🤖 Playing turn for:", bot);
+    
+    // Bot draws a tile
+    const wallTiles = tiles.filter((t) => t.owner === "wall");
+    if (wallTiles.length === 0) {
+      console.log("❌ No wall tiles left for bot");
+      return;
+    }
+
+    const drawnTile = wallTiles[0];
+    console.log("🤖 Bot drew:", drawnTile.tileName);
+    
+    // Remove from wall
+    setTiles((prev) => prev.filter((t) => t.id !== drawnTile.id));
+    
+    // Bot immediately discards a random tile (simple AI)
+    setTimeout(() => {
+      console.log("🤖 Bot discarding tile");
+      const discardedTile = drawnTile.tileName; // Just discard what was drawn for now
+      
+      // Add to discard pile
+      addDiscardTile(discardedTile, bot);
+      
+      // Continue to next player
+      setTimeout(() => {
+        advanceToNextPlayer();
+      }, 800);
+    }, 600);
   };
 
   const getNextPlayer = (current: string) => {
