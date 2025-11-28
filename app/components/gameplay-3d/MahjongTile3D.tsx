@@ -11,6 +11,7 @@ interface MahjongTile3DProps {
   faceUp?: boolean;
   scale?: number;
   onClick?: () => void;
+  neutralColor?: boolean; // If true, no pink tint on back
 }
 
 export function MahjongTile3D({
@@ -20,6 +21,7 @@ export function MahjongTile3D({
   faceUp = true,
   scale = 1,
   onClick,
+  neutralColor = false,
 }: MahjongTile3DProps) {
   const meshRef = useRef<THREE.Mesh>(null);
 
@@ -28,10 +30,11 @@ export function MahjongTile3D({
   const backTexture = useTexture("/tiles/regular/Back.png");
 
   // Mahjong tile dimensions (in units, scaled appropriately)
-  // Real tiles are roughly 30mm x 22mm x 16mm (L x W x H)
-  const tileWidth = 0.22 * scale;
-  const tileHeight = 0.16 * scale;
-  const tileDepth = 0.3 * scale;
+  // Portrait orientation to match tile PNG aspect ratios - scaled down by half
+  const tileWidth = 0.1 * scale;   // Width (thin side)
+  const tileHeight = 0.04 * scale; // Height (vertical)
+  const tileDepth = 0.15 * scale;   // Depth (long side - portrait)
+  const tileFaceLength = 0.2 * scale; // Face length for portrait aspect
 
   // Create rounded box geometry
   const radius = 0.02 * scale; // Rounded edge radius
@@ -41,7 +44,7 @@ export function MahjongTile3D({
     <group position={position} rotation={rotation} onClick={onClick}>
       {/* Main tile body with rounded edges */}
       <mesh ref={meshRef} castShadow receiveShadow>
-        <boxGeometry args={[tileDepth, tileHeight, tileWidth, 16, 16, 16]} />
+        <boxGeometry args={[tileDepth, tileHeight, tileFaceLength, 16, 16, 16]} />
         <meshStandardMaterial
           color="#F5E6D3" // Creamy tile color
           roughness={0.3}
@@ -49,15 +52,24 @@ export function MahjongTile3D({
         />
       </mesh>
 
-      {/* Top face (tile face) */}
+      {/* Edge lines for better distinction */}
+      <lineSegments>
+        <edgesGeometry args={[new THREE.BoxGeometry(tileDepth, tileHeight, tileFaceLength)]} />
+        <lineBasicMaterial color="#C4B5A0" linewidth={2} transparent opacity={0.6} />
+      </lineSegments>
+
+      {/* Top face (tile face) - Portrait orientation */}
       <mesh
         position={[0, tileHeight / 2 + 0.001, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
         castShadow
       >
-        <planeGeometry args={[tileDepth * 0.95, tileWidth * 0.95]} />
+        <planeGeometry args={[tileDepth * 0.95, tileFaceLength * 0.95]} />
         <meshStandardMaterial
           map={faceUp ? faceTexture : backTexture}
+          color={faceUp ? "#FFFFFF" : (neutralColor ? "#F5E6D3" : "#e44184")} // Beige for neutral, pink top for game tiles
+          transparent={true}
+          alphaTest={0.1}
           roughness={0.2}
           metalness={0.05}
         />
@@ -69,33 +81,39 @@ export function MahjongTile3D({
         rotation={[Math.PI / 2, 0, 0]}
         castShadow
       >
-        <planeGeometry args={[tileDepth * 0.95, tileWidth * 0.95]} />
+        <planeGeometry args={[tileDepth * 0.95, tileFaceLength * 0.95]} />
         <meshStandardMaterial color="#E8D4B8" roughness={0.4} />
       </mesh>
 
-      {/* Back face (long side) */}
+      {/* Back face (portrait - long side) */}
       <mesh
-        position={[0, 0, -tileWidth / 2 - 0.001]}
+        position={[0, 0, -tileFaceLength / 2 - 0.001]}
         rotation={[0, 0, 0]}
         castShadow
       >
         <planeGeometry args={[tileDepth * 0.95, tileHeight * 0.95]} />
         <meshStandardMaterial
           map={backTexture}
+          color={neutralColor ? "#F5E6D3" : "#FFB6C1"} // Beige for neutral, pink for game tiles
+          transparent={true}
+          alphaTest={0.1}
           roughness={0.2}
           metalness={0.05}
         />
       </mesh>
 
-      {/* Front face (long side) */}
+      {/* Front face (portrait - long side) */}
       <mesh
-        position={[0, 0, tileWidth / 2 + 0.001]}
+        position={[0, 0, tileFaceLength / 2 + 0.001]}
         rotation={[0, Math.PI, 0]}
         castShadow
       >
         <planeGeometry args={[tileDepth * 0.95, tileHeight * 0.95]} />
         <meshStandardMaterial
           map={backTexture}
+          color={neutralColor ? "#F5E6D3" : "#FFB6C1"} // Beige for neutral, pink for game tiles
+          transparent={true}
+          alphaTest={0.1}
           roughness={0.2}
           metalness={0.05}
         />
@@ -107,7 +125,7 @@ export function MahjongTile3D({
         rotation={[0, Math.PI / 2, 0]}
         castShadow
       >
-        <planeGeometry args={[tileWidth * 0.95, tileHeight * 0.95]} />
+        <planeGeometry args={[tileFaceLength * 0.95, tileHeight * 0.95]} />
         <meshStandardMaterial color="#E8D4B8" roughness={0.4} />
       </mesh>
 
@@ -117,7 +135,7 @@ export function MahjongTile3D({
         rotation={[0, -Math.PI / 2, 0]}
         castShadow
       >
-        <planeGeometry args={[tileWidth * 0.95, tileHeight * 0.95]} />
+        <planeGeometry args={[tileFaceLength * 0.95, tileHeight * 0.95]} />
         <meshStandardMaterial color="#E8D4B8" roughness={0.4} />
       </mesh>
     </group>

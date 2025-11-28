@@ -5,6 +5,10 @@ import { Toaster } from "@/components/ui/sonner";
 export const metadata: Metadata = {
   title: "Learn Mahjong. Have Fun.",
   description: "Master American Mahjong in 15 minutes a day with interactive lessons and engaging challenges.",
+  icons: {
+    icon: "/tiles/black/Pin1.png",
+    apple: "/tiles/black/Pin1.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

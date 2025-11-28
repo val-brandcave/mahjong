@@ -3,17 +3,18 @@
 import { RoundedBox } from "@react-three/drei";
 
 export function MahjongTable() {
-  // Table dimensions
-  const tableSize = 5;
+  // Table dimensions - RECTANGULAR
+  const tableWidth = 7;   // X-axis (left-right) - WIDER
+  const tableDepth = 5;   // Z-axis (front-back) - original
   const tableHeight = 0.1;
   const legHeight = 1;
   const legSize = 0.15;
 
   return (
     <group position={[0, -legHeight / 2, 0]}>
-      {/* Table surface */}
+      {/* Table surface - Teal - RECTANGULAR */}
       <RoundedBox
-        args={[tableSize, tableHeight, tableSize]}
+        args={[tableWidth, tableHeight, tableDepth]}
         radius={0.05}
         smoothness={4}
         position={[0, legHeight / 2, 0]}
@@ -21,7 +22,7 @@ export function MahjongTable() {
         receiveShadow
       >
         <meshStandardMaterial
-          color="#2D5016" // Traditional green felt
+          color="#3e9eab" // Teal
           roughness={0.8}
           metalness={0.1}
         />
@@ -29,10 +30,10 @@ export function MahjongTable() {
 
       {/* Table legs (4 corners) */}
       {[
-        [-tableSize / 2 + 0.3, 0, -tableSize / 2 + 0.3],
-        [tableSize / 2 - 0.3, 0, -tableSize / 2 + 0.3],
-        [-tableSize / 2 + 0.3, 0, tableSize / 2 - 0.3],
-        [tableSize / 2 - 0.3, 0, tableSize / 2 - 0.3],
+        [-tableWidth / 2 + 0.3, 0, -tableDepth / 2 + 0.3],
+        [tableWidth / 2 - 0.3, 0, -tableDepth / 2 + 0.3],
+        [-tableWidth / 2 + 0.3, 0, tableDepth / 2 - 0.3],
+        [tableWidth / 2 - 0.3, 0, tableDepth / 2 - 0.3],
       ].map((pos, i) => (
         <mesh
           key={i}
@@ -45,20 +46,7 @@ export function MahjongTable() {
         </mesh>
       ))}
 
-      {/* Center discard area marker (optional) */}
-      <mesh
-        position={[0, legHeight / 2 + tableHeight / 2 + 0.01, 0]}
-        rotation={[-Math.PI / 2, 0, 0]}
-        receiveShadow
-      >
-        <ringGeometry args={[0.8, 1.0, 32]} />
-        <meshStandardMaterial
-          color="#1A3A0F"
-          transparent
-          opacity={0.3}
-          roughness={0.9}
-        />
-      </mesh>
+      {/* Center ring removed per user request */}
     </group>
   );
 }

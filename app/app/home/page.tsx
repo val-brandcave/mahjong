@@ -23,7 +23,8 @@ import {
   GraduationCap,
   Globe,
   UserCircle2,
-  Boxes,
+  Shuffle,
+  Users2,
 } from "lucide-react";
 import { useLessonProgressStore, useUserStatsStore } from "@/lib/store/onboarding";
 
@@ -39,6 +40,7 @@ export default function HomePage() {
   const router = useRouter();
   const [showPremiumBanner, setShowPremiumBanner] = useState(true);
   const [activeTab, setActiveTab] = useState("home");
+  const [showPlayMenu, setShowPlayMenu] = useState(false);
   
   const { lessonsProgress } = useLessonProgressStore();
   const { level, totalXP, currentStreak, lessonsCompleted } = useUserStatsStore();
@@ -236,33 +238,6 @@ export default function HomePage() {
           </div>
         </motion.button>
 
-        {/* 3D Gameplay Demo */}
-        <motion.button
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          onClick={() => router.push("/gameplay-3d")}
-          className="w-full rounded-xl p-4 text-left border transition-colors"
-          style={{
-            background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1))",
-            borderColor: "rgba(99, 102, 241, 0.3)"
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{
-              background: "linear-gradient(135deg, rgb(59, 130, 246), rgb(147, 51, 234))"
-            }}>
-              <Boxes className="h-6 w-6 text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-muted-foreground mb-1">New! Preview</p>
-              <h3 className="font-semibold text-foreground text-sm leading-tight mb-1">3D Gameplay Demo</h3>
-              <span className="text-xs text-muted-foreground">Interactive 3D table experience</span>
-            </div>
-            <ArrowRight className="h-5 w-5" style={{ color: "rgb(99, 102, 241)" }} />
-          </div>
-        </motion.button>
-
         {/* Quick Stats */}
         <div className="grid grid-cols-3 gap-3">
           <motion.div
@@ -338,9 +313,89 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Play Menu Overlay - Click to close */}
+      {showPlayMenu && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setShowPlayMenu(false)}
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+        />
+      )}
+
+      {/* Play Options Menu - Above FAB */}
+      {showPlayMenu && (
+        <motion.div
+          initial={{ opacity: 0, y: 20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          className="fixed z-50"
+          style={{
+            bottom: "calc(3rem + 70px + 8px)", // nav height + FAB height + gap
+            left: "20vw",
+            transform: "translateX(-50%)",
+            width: "200px",
+          }}
+        >
+          <div
+            className="rounded-2xl p-2 shadow-2xl border"
+            style={{
+              background: "linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9))",
+              backdropFilter: "blur(20px)",
+              borderColor: "rgba(99, 102, 241, 0.2)",
+              boxShadow: "0 20px 60px rgba(59, 130, 246, 0.3), 0 8px 24px rgba(147, 51, 234, 0.2)",
+            }}
+          >
+            {/* Quick Match */}
+            <button
+              onClick={() => {
+                setShowPlayMenu(false);
+                router.push("/gameplay-matchmaking");
+              }}
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl transition-all hover:scale-[1.02] active:scale-95 whitespace-nowrap"
+              style={{
+                background: "linear-gradient(135deg, rgb(59, 130, 246), rgb(147, 51, 234))",
+                boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
+              }}
+            >
+              <Shuffle className="h-5 w-5 text-white" />
+              <p className="text-white font-bold text-sm">Quick Match</p>
+            </button>
+
+            {/* Friends Match */}
+            <button
+              onClick={() => {
+                setShowPlayMenu(false);
+                // Future: router.push("/gameplay-friends");
+                alert("Friends Match coming soon!");
+              }}
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl transition-all hover:bg-black/5 active:bg-black/10 mt-2 whitespace-nowrap"
+            >
+              <Users2 className="h-5 w-5" style={{ color: "rgb(140, 100, 230)" }} />
+              <p className="font-bold text-sm" style={{ color: "rgb(140, 100, 230)" }}>Friends Match</p>
+            </button>
+          </div>
+
+          {/* Triangle pointer */}
+          <div
+            className="absolute left-1/2 -translate-x-1/2 w-0 h-0"
+            style={{
+              bottom: "-8px",
+              borderLeft: "12px solid transparent",
+              borderRight: "12px solid transparent",
+              borderTop: "12px solid rgba(255, 255, 255, 0.95)",
+              filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))",
+            }}
+          />
+        </motion.div>
+      )}
+
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-3 max-w-md mx-auto">
-        <div className="flex items-center justify-around">
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-3 max-w-md mx-auto z-30">
+        <div className="flex items-end justify-between px-2">
+          {/* Left Side - Home & Lessons */}
           <button
             onClick={() => setActiveTab("home")}
             className="flex flex-col items-center gap-1 p-2 rounded-lg transition-colors"
@@ -359,6 +414,36 @@ export default function HomePage() {
             <span className="text-xs font-medium">Lessons</span>
           </button>
 
+          {/* Center FAB - Protruding Play Button */}
+          <motion.button
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.3 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setShowPlayMenu(!showPlayMenu)}
+            className="flex items-center justify-center rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 -mt-8 relative z-40"
+            style={{
+              width: "70px",
+              height: "70px",
+              background: showPlayMenu
+                ? "linear-gradient(135deg, rgb(147, 51, 234) 0%, rgb(59, 130, 246) 100%)"
+                : "linear-gradient(135deg, rgb(59, 130, 246) 0%, rgb(147, 51, 234) 100%)",
+              boxShadow: "0 8px 32px rgba(59, 130, 246, 0.5), 0 4px 16px rgba(147, 51, 234, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.3)",
+              border: "4px solid hsl(var(--card))",
+              flexShrink: 0,
+            }}
+          >
+            <img
+              src="/tiles/black/mahjong-Icon.svg"
+              alt="Mahjong"
+              width={40}
+              height={40}
+              className="drop-shadow-lg"
+              style={{ filter: "brightness(0) invert(1)" }}
+            />
+          </motion.button>
+
+          {/* Right Side - Challenges & More */}
           <button
             onClick={() => router.push("/challenges")}
             className="flex flex-col items-center gap-1 p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"

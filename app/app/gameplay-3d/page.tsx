@@ -56,7 +56,7 @@ export default function Gameplay3DPage() {
 
   // Auto-advance scenes
   useEffect(() => {
-    if (!isPlaying) return;
+    if (!isPlaying || !SCENES[currentScene]) return;
 
     const sceneDuration = SCENES[currentScene].duration;
     const interval = setInterval(() => {
@@ -131,6 +131,25 @@ export default function Gameplay3DPage() {
               3D Mahjong Gameplay POC
             </h1>
             <p className="text-white/70 text-sm">Interactive demonstration of American Mahjong</p>
+          </div>
+          
+          <div className="flex gap-2">
+            <Link href="/gameplay-interactive">
+              <Button
+                size="sm"
+                className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-medium"
+              >
+                🎮 Simple Demo
+              </Button>
+            </Link>
+            <Link href="/gameplay-full">
+              <Button
+                size="sm"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium"
+              >
+                🎯 Full Gameplay
+              </Button>
+            </Link>
           </div>
           
           {/* Camera presets */}
@@ -221,10 +240,10 @@ export default function Gameplay3DPage() {
           {/* Scene Info */}
           <div className="text-center mb-4">
             <h2 className="text-xl font-bold text-white mb-1">
-              Scene {currentScene + 1}: {SCENES[currentScene].title}
+              Scene {currentScene + 1}: {SCENES[currentScene]?.title || "Loading..."}
             </h2>
             <p className="text-white/70 text-sm">
-              {SCENES[currentScene].description}
+              {SCENES[currentScene]?.description || ""}
             </p>
           </div>
 

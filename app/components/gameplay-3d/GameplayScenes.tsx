@@ -38,7 +38,11 @@ export function GameplayScenes({ scene, progress }: GameplaySceneProps) {
 
 // Scene 0: Initial Setup - Walls Built
 function Scene0_InitialSetup({ walls, progress }: any) {
-  const tableY = 0.6; // Height above table surface
+  // Table surface is at Y=0.05, tile height is 0.16
+  // Bottom of tile should touch table, so Y = 0.05 + (0.16/2) = 0.13
+  const tableY = 0.13;
+  const tileSpacing = 0.32; // Increased from 0.2 for better visibility
+  const stackHeight = 0.18; // Increased from 0.17 for clearer stacking
 
   return (
     <group>
@@ -50,8 +54,8 @@ function Scene0_InitialSetup({ walls, progress }: any) {
           <MahjongTile3D
             key={`east-${i}`}
             position={[
-              -1.8 + stackIndex * 0.2,
-              tableY + layer * 0.17,
+              -1.8 + stackIndex * tileSpacing,
+              tableY + layer * stackHeight,
               1.5,
             ]}
             rotation={[0, 0, 0]}
@@ -71,8 +75,8 @@ function Scene0_InitialSetup({ walls, progress }: any) {
             key={`south-${i}`}
             position={[
               1.5,
-              tableY + layer * 0.17,
-              -1.8 + stackIndex * 0.2,
+              tableY + layer * stackHeight,
+              -1.8 + stackIndex * tileSpacing,
             ]}
             rotation={[0, Math.PI / 2, 0]}
             tileName={tile}
@@ -90,8 +94,8 @@ function Scene0_InitialSetup({ walls, progress }: any) {
           <MahjongTile3D
             key={`west-${i}`}
             position={[
-              1.8 - stackIndex * 0.2,
-              tableY + layer * 0.17,
+              1.8 - stackIndex * tileSpacing,
+              tableY + layer * stackHeight,
               -1.5,
             ]}
             rotation={[0, Math.PI, 0]}
@@ -111,8 +115,8 @@ function Scene0_InitialSetup({ walls, progress }: any) {
             key={`north-${i}`}
             position={[
               -1.5,
-              tableY + layer * 0.17,
-              1.8 - stackIndex * 0.2,
+              tableY + layer * stackHeight,
+              1.8 - stackIndex * tileSpacing,
             ]}
             rotation={[0, -Math.PI / 2, 0]}
             tileName={tile}
@@ -127,7 +131,8 @@ function Scene0_InitialSetup({ walls, progress }: any) {
 
 // Scene 1: Breaking the Wall & Dealing
 function Scene1_BreakingWall({ walls, progress }: any) {
-  const tableY = 0.6;
+  const tableY = 0.13;
+  const tileSpacing = 0.32;
   
   // Show initial walls, then animate some tiles moving to players
   const dealingProgress = Math.max(0, progress - 0.3);
@@ -142,8 +147,8 @@ function Scene1_BreakingWall({ walls, progress }: any) {
           <MahjongTile3D
             key={`east-${i}`}
             position={[
-              -1.8 + stackIndex * 0.2,
-              tableY + layer * 0.17,
+              -1.8 + stackIndex * tileSpacing,
+              tableY + layer * 0.18,
               1.5,
             ]}
             rotation={[0, 0, 0]}
@@ -156,9 +161,9 @@ function Scene1_BreakingWall({ walls, progress }: any) {
 
       {/* Animated tiles being dealt to East player */}
       {walls.east.slice(0, 8).map((tile: string, i: number) => {
-        const targetX = -0.8 + i * 0.15;
+        const targetX = -0.8 + i * 0.17;
         const targetZ = 1.0;
-        const currentX = -1.8 + Math.floor(i / 2) * 0.2 + (targetX + 1.8) * dealingProgress;
+        const currentX = -1.8 + Math.floor(i / 2) * tileSpacing + (targetX + 1.8) * dealingProgress;
         const currentZ = 1.5 + (targetZ - 1.5) * dealingProgress;
         
         return (
@@ -178,7 +183,7 @@ function Scene1_BreakingWall({ walls, progress }: any) {
 
 // Scene 2: Charleston (Passing Tiles)
 function Scene2_Charleston({ walls, progress }: any) {
-  const tableY = 0.6;
+  const tableY = 0.13;
   
   // Player hands (simplified)
   const eastHand = walls.east.slice(0, 13);
@@ -198,7 +203,7 @@ function Scene2_Charleston({ walls, progress }: any) {
       {eastHand.slice(3).map((tile: string, i: number) => (
         <MahjongTile3D
           key={`east-${i}`}
-          position={[-0.8 + i * 0.15, tableY, 1.0]}
+          position={[-0.8 + i * 0.17, tableY, 1.0]}
           rotation={[0, 0, 0]}
           tileName={tile}
           faceUp={true}
@@ -211,7 +216,7 @@ function Scene2_Charleston({ walls, progress }: any) {
         <MahjongTile3D
           key={`passing-${i}`}
           position={[
-            passX + i * 0.15,
+            passX + i * 0.17,
             tableY + progress * 0.3,
             passZ - i * 0.1,
           ]}
@@ -226,7 +231,7 @@ function Scene2_Charleston({ walls, progress }: any) {
       {southHand.slice(0, 10).map((tile: string, i: number) => (
         <MahjongTile3D
           key={`south-${i}`}
-          position={[0.8, tableY, -0.8 + i * 0.15]}
+          position={[0.8, tableY, -0.8 + i * 0.17]}
           rotation={[0, Math.PI / 2, 0]}
           tileName={tile}
           faceUp={true}
@@ -239,7 +244,7 @@ function Scene2_Charleston({ walls, progress }: any) {
 
 // Scene 3: Active Gameplay (Draw & Discard)
 function Scene3_Gameplay({ walls, progress }: any) {
-  const tableY = 0.6;
+  const tableY = 0.13;
   const eastHand = walls.east.slice(0, 13);
   
   // Tile being drawn
@@ -256,7 +261,7 @@ function Scene3_Gameplay({ walls, progress }: any) {
       {eastHand.slice(0, 12).map((tile: string, i: number) => (
         <MahjongTile3D
           key={`hand-${i}`}
-          position={[-0.9 + i * 0.15, tableY, 1.0]}
+          position={[-0.9 + i * 0.17, tableY, 1.0]}
           rotation={[0, 0, 0]}
           tileName={tile}
           faceUp={true}
@@ -307,7 +312,7 @@ function Scene3_Gameplay({ walls, progress }: any) {
 
 // Scene 4: Calling a Tile (Exposing Pung)
 function Scene4_CallingTile({ walls, progress }: any) {
-  const tableY = 0.6;
+  const tableY = 0.13;
   const southHand = walls.south.slice(0, 13);
   
   // The called tile from discard
@@ -324,7 +329,7 @@ function Scene4_CallingTile({ walls, progress }: any) {
       {southHand.slice(3, 13).map((tile: string, i: number) => (
         <MahjongTile3D
           key={`hand-${i}`}
-          position={[1.0, tableY, -0.8 + i * 0.15]}
+          position={[1.0, tableY, -0.8 + i * 0.17]}
           rotation={[0, Math.PI / 2, 0]}
           tileName={tile}
           faceUp={true}
@@ -366,7 +371,7 @@ function Scene4_CallingTile({ walls, progress }: any) {
 
 // Scene 5: Winning Hand Reveal
 function Scene5_WinningHand({ walls, progress }: any) {
-  const tableY = 0.6;
+  const tableY = 0.13;
   
   // Create a winning hand (example: runs and pairs)
   const winningHand = [
